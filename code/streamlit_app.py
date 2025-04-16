@@ -12,9 +12,9 @@ import numpy as np
 
 FRAME_LENGTH = 2048
 
-# Load processor and base model
-processor_noisy = SpeechT5Processor.from_pretrained("/Users/akanshagautam/Documents/MTech/Speech Understanding/speech-understanding-project/saved_models/fine_tuned_model_on_noisy_audio")
-model_noisy = SpeechT5ForSpeechToText.from_pretrained("/Users/akanshagautam/Documents/MTech/Speech Understanding/speech-understanding-project/saved_models/fine_tuned_model_on_noisy_audio")
+noisy_model_path = "/Users/akanshagautam/Documents/MTech/Speech Understanding/speech-understanding-project/saved_models/fine_tuned_model_on_noisy_audio"
+processor_noisy = SpeechT5Processor.from_pretrained(noisy_model_path)
+model_noisy = SpeechT5ForSpeechToText.from_pretrained(noisy_model_path, ignore_mismatched_sizes=True)
 
 st.set_page_config(page_title="Automatic Speech Recognition", layout="centered")
 
@@ -31,29 +31,28 @@ This demo showcases how visual cues from lip movements can significantly improve
 video_file = st.file_uploader("Upload a .mp4 video file", type=["mp4"])
 audio_file = st.file_uploader("Upload a .wav audio file", type=["wav"])
 
-if audio_file is not None:
+audio_path = None
+if audio_file:
     temp_dir = tempfile.mkdtemp()
     audio_path = os.path.join(temp_dir, audio_file.name)
-
     with open(audio_path, "wb") as f:
         f.write(audio_file.getbuffer())
+    st.success(f"Audio saved to: {audio_path}")
 
-##################### NOISY ######################
-y, sample_rate = librosa.load(audio_path, sr=16000)
-if len(y) < FRAME_LENGTH:
-    pad_length = FRAME_LENGTH - len(y)
-    y = np.pad(y, (0, pad_length), mode='constant')
-y = librosa.util.normalize(y)
-y = librosa.effects.preemphasis(y)
-inputs = processor_noisy(y, sampling_rate=sample_rate, return_tensors="pt")
-with torch.no_grad():
-    predicted_ids = model_noisy.generate(inputs["input_values"])
-transcription_noisy = processor_noisy.batch_decode(predicted_ids, skip_special_tokens=True)[0]
+    y, sample_rate = librosa.load(audio_path, sr=16000)
+    if len(y) < FRAME_LENGTH:
+        pad_length = FRAME_LENGTH - len(y)
+        y = np.pad(y, (0, pad_length), mode='constant')
+    y = librosa.util.normalize(y)
+    y = librosa.effects.preemphasis(y)
+    inputs = processor_noisy(audio=y, sampling_rate=sample_rate, return_tensors="pt")
+    with torch.no_grad():
+        predicted_ids = model_noisy.generate(inputs["input_values"])
+    transcription_noisy = processor_noisy.batch_decode(predicted_ids, skip_special_tokens=True)[0]
+else:
+    transcription_noisy = "> _no audio uploaded_"
 
-##############################################
-
-
-if video_file is not None and audio_file is not None:
+if video_file and audio_file:
     temp_dir = tempfile.mkdtemp()
 
     video_path = os.path.join(temp_dir, video_file.name)
