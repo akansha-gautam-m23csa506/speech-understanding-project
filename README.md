@@ -21,7 +21,7 @@
 
 ---
 
-## 📊 Results
+## Results
 
 We evaluated all three models using **Word Error Rate (WER)**:
 
@@ -35,7 +35,7 @@ The model trained on cleaned audio (with lip-reading) performed much better than
 
 ---
 
-## 💡 What We Learned
+## What We Learned
 
 - Adding noise degrades ASR performance significantly.
 - Lip-reading helps recover accuracy by muting irrelevant segments.
