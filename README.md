@@ -4,10 +4,6 @@
 
 ---
 
-## Repository Structure
-
-├── app/ # Scripts for data and training pipeline ├── code/ # Streamlit app, model loading and evaluation ├── img/ # Visualizations and waveform plots ├── saved_model/ # Fine-tuned SpeechT5 model checkpoints ├── README.md └── .gitattributes
-
 ## Methodology
 
 1. **Dataset**: We used the AVSpeech dataset and selected 100 English-speaking YouTube videos using Whisper-tiny. For each sample, we extracted:
